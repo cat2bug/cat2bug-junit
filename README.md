@@ -43,7 +43,7 @@ testImplementation ("com.cat2bug:cat2bug-spring-boot-junit:0.0.1")
 docker run -it -d -p 8022:8022 --name cat2bug-platform cat2bug/cat2bug-platform:latest
 ````
 
-启动成功后，在浏览器访问http://127.0.0.1:8022，如果可以正常访问，代表平台启动成功；
+启动成功后，在浏览器访问http://127.0.0.1:8022， 如果可以正常访问，代表平台启动成功；
 
 2. 在[Cat2Bug-Platform](https://gitee.com/cat2bug/cat2bug-platform)平台,依次注册用户，创建团队，创建项目后，在项目设置的API KEY中，添加一个KEY，用于单元测试提交报告的鉴权用，界面如下：
 
@@ -52,10 +52,13 @@ docker run -it -d -p 8022:8022 --name cat2bug-platform cat2bug/cat2bug-platform:
 至此，准备工作已经完成。
 
 ## API说明
+
+在项目中引用cat2bug-spring-boot-junit包后，在测试类中添加简单配置，即可自动扫描测试，大家可以参考源码中的demo，下面将介绍相关注解API。
+
 ### AutoTestScan 类注解
 
 **用能：**  
-用于提供自动测试的相关参数。
+用于指定自动测试哪些包下的Controller类。
 
 **参数说明：**
 
@@ -65,14 +68,15 @@ docker run -it -d -p 8022:8022 --name cat2bug-platform cat2bug/cat2bug-platform:
 
 ### PushReport 类注解
 **用能：**  
-在测试完成后，将失败的测试结果发送到[Cat2Bug云平台](http://www.cat2bug.com)。  
+在测试完成后，将失败的测试结果发送到[Cat2Bug-Platform](https://gitee.com/cat2bug/cat2bug-platform)。  
 **参数说明：**
 
-| 参数名         | 类型  | 是否必填  | 功能描述      |
-|---|---|---|---|
-| projectKey | 字符串 | 是 | 应用配置中的Key。 |
-| handler | 字符串 | 是 | 问题处理人的登陆名。 |
-| isPush | 布尔型 | 否 | 是否推送问题报告到[Cat2Bug云平台](http://www.cat2bug.com)，默认值为true推送。  |
+| 参数名        | 类型  | 是否必填  | 功能描述                                                      |
+|------------|---|---|-----------------------------------------------------------|
+| host       | 字符串 | 是 | Cat2Bug-Platform平台的网址。                                    |
+| projectKey | 字符串 | 是 | 应用配置中的Key。                                                |
+| handler    | 字符串 | 是 | 问题处理人的登陆名。                                                |
+| isPush     | 布尔型 | 否 | 是否推送问题报告到[Cat2Bug云平台](http://www.cat2bug.com)，默认值为true推送。 |
 
 ### RandomParameter 方法注解
 **用能：**  
@@ -92,7 +96,7 @@ Cat2BugRunner注解继承于BlockJUnit4ClassRunner类，主要功能用于在测
 
 ```java
 @RunWith(Cat2BugRunner.class)
-@PushReport(projectKey = "********-****-****-****-********", handler="处理用户登陆名")
+@PushReport(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********", handler="处理用户登陆名")
 public class Cat2BugRunnerTest {
 	@Test
 	public void testFalse() {
@@ -107,7 +111,7 @@ Cat2BugSpringRunner继承于SpringJUnit4ClassRunner类，功能与Cat2BugRunner�
 
 ```java
 @RunWith(Cat2BugSpringRunner.class)
-@PushReport(projectKey = "********-****-****-****-********",handler="处理用户登陆名")
+@PushReport(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********",handler="处理用户登陆名")
 @WebAppConfiguration
 @SpringBootTest
 public class Cat2BugSpringRunnerTest {
@@ -137,7 +141,7 @@ Cat2BugAutoSpringSuite继承于Suite套件类，测试时会扫描Java包中的C
 ```java
 @RunWith(Cat2BugAutoSpringSuite.class)
 @AutoTestScan(packageName = "com.cat2bug.junit.demo")
-@PushReport(projectKey = "********-****-****-****-********", handler="处理用户登陆名")
+@PushReport(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********", handler="处理用户登陆名")
 @Transactional
 public class Cat2BugJunitDemoApplicationTests {
 
