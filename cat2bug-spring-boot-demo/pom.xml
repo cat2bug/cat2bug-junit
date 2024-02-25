@@ -5,11 +5,10 @@
     <parent>
         <groupId>com.cat2bug</groupId>
         <artifactId>cat2bug-junit</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
     <groupId>com.cat2bug</groupId>
     <artifactId>cat2bug-spring-boot-demo</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>cat2bug-spring-boot-demo</name>
     <description>cat2bug-spring-boot-demo</description>
     <properties>
