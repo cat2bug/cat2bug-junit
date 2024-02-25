@@ -197,7 +197,6 @@
                             </includes>
                         </fileSet>
                     </fileSets>
-                    <outputDirectory>${project.build.directory}/com/cat2bug/cat2bug-spring-boot-junit/0.0.1</outputDirectory>
                     <algorithms>
                         <algorithm>SHA-1</algorithm>
                         <algorithm>MD5</algorithm>
