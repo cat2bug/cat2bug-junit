@@ -1,8 +1,10 @@
 package com.cat2bug.junit.demo.controller;
 
-import com.cat2bug.junit.demo.vo.AjaxResult;
-import com.cat2bug.junit.demo.vo.LoginBody;
+import com.cat2bug.junit.demo.entity.User;
+import com.cat2bug.junit.demo.service.UserRepository;
 import com.google.common.base.Preconditions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,16 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
  * @CreateTime: 2024-02-24 22:23
  * @Version: 1.0.0
  */
-//@RestController
+@RestController
 public class LoginController {
-    @PostMapping("/login")
-    public AjaxResult login(@RequestBody LoginBody loginBody)
-    {
-        Preconditions.checkNotNull(loginBody.getLoginName(),"登陆账号不能为空");
-        Preconditions.checkArgument(
-                loginBody.getLoginName().length()<33
-                && loginBody.getLoginName().length()>2,"登陆账号长度必须在3至32为之间");
+    @Autowired
+    private UserRepository userRepository;
 
-        return AjaxResult.success();
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User user)
+    {
+        Preconditions.checkNotNull(user.getName(),"登陆账号不能为空");
+        Preconditions.checkNotNull(user.getPassword(),"登陆密码不能为空");
+
+        return ResponseEntity.ok(this.userRepository.getUserByNameAndPassword(user.getName(), user.getPassword()));
     }
 }

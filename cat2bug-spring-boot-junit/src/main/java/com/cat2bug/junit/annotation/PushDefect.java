@@ -17,7 +17,7 @@ public @interface PushDefect {
 	 * 提交接口的系统地址
 	 * @return
 	 */
-	String host() default "http://www.cat2bug.com/cloud/";
+	String host() default "";
 	/**
 	 * 项目的密钥
 	 * @return

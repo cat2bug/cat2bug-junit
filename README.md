@@ -1,10 +1,10 @@
 # Cat2Cug-Spring-Boot-JUnit
 
 ## 介绍
-[Cat2Cug-Spring-Boot-JUnit](https://gitee.com/cat2bug/cat2bug-spring-boot-junit) 是[Cat2Bug](http://www.cat2bug.com) 推出的Java Spring单元测试功能包，目标是用最少的代码完成单元测试，减少开发人员在单元测试过程中的代码开发量，并可将测试结果发送到开源缺陷管理平台[Cat2Bug-Platform](https://gitee.com/cat2bug/cat2bug-platform) 上，提高软件开发、Bug修复及项目管理交付的效率。
+[Cat2Cug-Spring-Boot-JUnit](https://gitee.com/cat2bug/cat2bug-spring-boot-junit) 是[Cat2Bug](https://www.cat2bug.com) 推出的Java Spring单元测试功能包，目标是用最少的代码完成单元测试，减少开发人员在单元测试过程中的代码开发量，并可将测试结果发送到开源缺陷管理平台[Cat2Bug-Platform](https://gitee.com/cat2bug/cat2bug-platform) 上，提高软件开发、Bug修复及项目管理交付的效率。
 
 ## 连接
-* 官网: http://www.cat2bug.com
+* 官网: https://www.cat2bug.com
 * library github: https://github.com/cat2bug/cat2bug-junit
 * library gitee: https://gitee.com/cat2bug/cat2bug-junit
 
@@ -36,7 +36,7 @@ testImplementation ("com.cat2bug:cat2bug-spring-boot-junit:0.0.1")
 
 ### 测试前的准备
 
-如果需要在单元测试完成后，将测试失败的缺陷结果提交到BUG系统，需先部署[Cat2Bug-Platform](https://gitee.com/cat2bug/cat2bug-platform)平台，并设置API KEY，以下介绍一种快速部署方式，更多详情请参阅[Cat2Bug官网文档](http://www.cat2bug.com)。
+如果需要在单元测试完成后，将测试失败的缺陷结果提交到BUG系统，需先部署[Cat2Bug-Platform](https://gitee.com/cat2bug/cat2bug-platform)平台，并设置API KEY，以下介绍一种快速部署方式，更多详情请参阅[Cat2Bug官网文档](https://www.cat2bug.com)。
 
 1. Docker下载[Cat2Bug-Platform容器](https://hub.docker.com/r/cat2bug/cat2bug-platform)平台部署，执行代码如下：
 ````
@@ -76,7 +76,7 @@ docker run -it -d -p 8022:8022 --name cat2bug-platform cat2bug/cat2bug-platform:
 | host       | 字符串 | 是 | Cat2Bug-Platform平台的网址。                                    |
 | projectKey | 字符串 | 是 | 应用配置中的Key。                                                |
 | handler    | 字符串 | 是 | 问题处理人的登陆名。                                                |
-| isPush     | 布尔型 | 否 | 是否推送问题报告到[Cat2Bug云平台](http://www.cat2bug.com)，默认值为true推送。 |
+| isPush     | 布尔型 | 否 | 是否推送问题报告到[Cat2Bug云平台](https://www.cat2bug.com)，默认值为true推送。 |
 
 ### RandomParameter 方法注解
 **用能：**  
@@ -92,7 +92,7 @@ docker run -it -d -p 8022:8022 --name cat2bug-platform cat2bug/cat2bug-platform:
 在测试一些业务功能时，如删除指定Id的数据信息，这时需要传递指定的Id值做为参数，采用随机赋值测试的方法就行不通了，此时就可以通过RandomParameter注解，指定哪一个测试类、哪一个测试方法的哪个参数来返回这个固定Id值。  
 另外需要注意RandomParameter注解的方法必须有返回值。
 ### Cat2BugRunner 类
-Cat2BugRunner注解继承于BlockJUnit4ClassRunner类，主要功能用于在测试完成后，将测试结果上传到[Cat2Bug云平台](http://www.cat2bug.com)。此注解需要配合PushReport注解一起使用，才能提交报告。
+Cat2BugRunner注解继承于BlockJUnit4ClassRunner类，主要功能用于在测试完成后，将测试结果上传到[Cat2Bug云平台](https://www.cat2bug.com)。此注解需要配合PushReport注解一起使用，才能提交报告。
 
 ```java
 @RunWith(Cat2BugRunner.class)
@@ -107,7 +107,7 @@ public class Cat2BugRunnerTest {
 
 ### Cat2BugSpringRunner 类
 
-Cat2BugSpringRunner继承于SpringJUnit4ClassRunner类，功能与Cat2BugRunner类相同，主要用于在测试完成后，将测试结果上传到[Cat2Bug云平台](http://www.cat2bug.com)。
+Cat2BugSpringRunner继承于SpringJUnit4ClassRunner类，功能与Cat2BugRunner类相同，主要用于在测试完成后，将测试结果上传到[Cat2Bug云平台](https://www.cat2bug.com)。
 
 ```java
 @RunWith(Cat2BugSpringRunner.class)

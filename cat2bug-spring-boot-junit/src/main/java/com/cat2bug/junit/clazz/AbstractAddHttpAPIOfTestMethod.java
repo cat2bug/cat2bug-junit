@@ -86,7 +86,7 @@ public abstract class AbstractAddHttpAPIOfTestMethod extends AbstractAddMethodOf
 				if (ans[i] != null && ans[i].length > 0) {
 					for (Object pa : ans[i]) {
 						if (pa instanceof PathVariable) { // 如果是路径参数
-							url = this.pathParamHandler(url, paramName, (String) paramValue);
+							url = this.pathParamHandler(url, paramName, (String) paramValue.toString());
 							paramUse = "PathVariable";
 							break;
 						} else if (pa instanceof RequestParam) { // 如果是请求参数

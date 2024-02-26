@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
     <name>cat2bug-spring-boot-starter-junit</name>
     <description>Spring Boot JUnit</description>
-    <url>http://www.cat2bug.com</url>
+    <url>https://www.cat2bug.com</url>
     <version>0.0.1</version>
     <!-- 开源签名证书 -->
     <licenses>
@@ -32,7 +32,7 @@
         <developer>
             <name>yuzhantao</name>
             <email>yuzhantao@qq.com</email>
-            <organization>http://www.cat2bug.com</organization>
+            <organization>https://www.cat2bug.com</organization>
             <timezone>+8</timezone>
         </developer>
     </developers>
@@ -64,6 +64,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>2.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.2</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

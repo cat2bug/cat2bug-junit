@@ -5,7 +5,7 @@
   <artifactId>cat2bug-junit</artifactId>
   <version>0.0.1</version>
   <name>cat2bug-junit</name>
-  <url>http://www.cat2bug.com</url>
+  <url>https://www.cat2bug.com</url>
   <packaging>pom</packaging>
 
   <properties>
@@ -59,6 +59,7 @@
   </dependencyManagement>
   <modules>
     <module>cat2bug-spring-boot-junit</module>
+    <module>cat2bug-spring-boot-demo</module>
   </modules>
 
   <repositories>
