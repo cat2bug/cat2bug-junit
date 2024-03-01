@@ -66,7 +66,7 @@ docker run -it -d -p 8022:8022 --name cat2bug-platform cat2bug/cat2bug-platform:
 |---|---|---|---|
 | packageName | 字符串 | 是 | 指定扫描的包名称。 |
 
-### PushReport 类注解
+### PushDefect 类注解
 **用能：**  
 在测试完成后，将失败的测试结果发送到[Cat2Bug-Platform](https://gitee.com/cat2bug/cat2bug-platform)。  
 **参数说明：**
@@ -92,11 +92,11 @@ docker run -it -d -p 8022:8022 --name cat2bug-platform cat2bug/cat2bug-platform:
 在测试一些业务功能时，如删除指定Id的数据信息，这时需要传递指定的Id值做为参数，采用随机赋值测试的方法就行不通了，此时就可以通过RandomParameter注解，指定哪一个测试类、哪一个测试方法的哪个参数来返回这个固定Id值。  
 另外需要注意RandomParameter注解的方法必须有返回值。
 ### Cat2BugRunner 类
-Cat2BugRunner注解继承于BlockJUnit4ClassRunner类，主要功能用于在测试完成后，将测试结果上传到[Cat2Bug云平台](https://www.cat2bug.com)。此注解需要配合PushReport注解一起使用，才能提交报告。
+Cat2BugRunner注解继承于BlockJUnit4ClassRunner类，主要功能用于在测试完成后，将测试结果上传到[Cat2Bug云平台](https://www.cat2bug.com)。此注解需要配合PushDefect注解一起使用，才能提交报告。
 
 ```java
 @RunWith(Cat2BugRunner.class)
-@PushReport(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********", handler="处理用户登陆名")
+@PushDefect(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********", handler="处理用户登陆名")
 public class Cat2BugRunnerTest {
 	@Test
 	public void testFalse() {
@@ -111,7 +111,7 @@ Cat2BugSpringRunner继承于SpringJUnit4ClassRunner类，功能与Cat2BugRunner�
 
 ```java
 @RunWith(Cat2BugSpringRunner.class)
-@PushReport(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********",handler="处理用户登陆名")
+@PushDefect(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********",handler="处理用户登陆名")
 @WebAppConfiguration
 @SpringBootTest
 public class Cat2BugSpringRunnerTest {
@@ -141,7 +141,7 @@ Cat2BugAutoSpringSuite继承于Suite套件类，测试时会扫描Java包中的C
 ```java
 @RunWith(Cat2BugAutoSpringSuite.class)
 @AutoTestScan(packageName = "com.cat2bug.junit.demo")
-@PushReport(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********", handler="处理用户登陆名")
+@PushDefect(host = "http://127.0.0.1:8022", projectKey = "********-****-****-****-********", handler="处理用户登陆名")
 @Transactional
 public class Cat2BugJunitDemoApplicationTests {
 
