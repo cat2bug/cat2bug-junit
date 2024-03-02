@@ -64,7 +64,7 @@ public class UserController {
         Preconditions.checkArgument(Strings.isNotBlank(user.getName()),"参数name不能为空!");
         Preconditions.checkArgument(Strings.isNotBlank(user.getPassword()),"参数password不能为空!");
         Optional<User> u = this.userRepository.findById(userId);
-        Preconditions.checkNotNull(u,"没有找到要修改的用户");
+        Preconditions.checkState(u.isPresent(),"没有找到要修改的用户");
 
         if(Strings.isNotBlank(user.getName())){
             u.get().setName(user.getName());

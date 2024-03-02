@@ -1,9 +1,11 @@
 package com.cat2bug.junit.listener;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.cat2bug.junit.annotation.PushDefect;
@@ -61,7 +63,6 @@ public class BugCloudRunListener extends RunListener {
 	@Override
 	public void testRunFinished(Result result) throws Exception {
 		PushDefect pushDefect = this.testClass.getAnnotation(PushDefect.class);
-
 		if (pushDefect == null) {
 			return;
 		}
@@ -89,16 +90,43 @@ public class BugCloudRunListener extends RunListener {
 		Preconditions.checkNotNull(url,"host不能为空");
 		String projectKey = this.getProjectKey(pushDefect);
 		Preconditions.checkNotNull(projectKey,"projectKey不能为空");
+		List<Failure> list = result.getFailures();
+		result.getFailures().forEach(f->{
+			this.pushDefect(pushDefect,url,projectKey,f,sb);
+		});
+		sb.append("\n Test Class:" + this.testClass.getName() + " 测试完成=========================================");
+		logger.info(sb.toString());
 
+		super.testRunFinished(result);
+	}
+
+	private void pushDefect(PushDefect pushDefect, String url, String projectKey, Failure failure,StringBuffer sb) {
 		OkHttpClient client = new OkHttpClient();
 		JSONObject json = new JSONObject();
-		json.put("handleByList", Arrays.asList(this.getHandler(pushDefect)));
-		String defectName = result.getFailures().stream().map(
-				fail->fail.getDescription().getClassName() + "." + fail.getDescription().getMethodName()
-		).collect(Collectors.joining("\n"));
-		String defectDescribe = result.getFailures().stream().map(fail->fail.getMessage()).collect(Collectors.joining("\n"));
+		String defectName = ("["+failure.getDescription().getDisplayName()+"]"+failure.getMessage()).substring(0,Math.min(failure.getMessage().length(),128));
+		String osName = System.getProperty("os.name");// 操作系统名称
+		String osArch = System.getProperty("os.arch");// 获取操作系统架构（位数）
+		String osVersion = System.getProperty("os.version");// 获取操作系统版本
+		String javaVersion = System.getProperty("java.version"); // java版本
+		List<String> jvmArgs = ManagementFactory.getRuntimeMXBean().getInputArguments(); // jvm参数
+		String defectDescribe = Arrays.asList(
+				"* **Tools:** Cat2Bug-Spring-Boot-JUnit\n",
+				"* **OS Name:** "+osName,
+				"* **OS Version:** "+osVersion,
+				"* **OS Arch:** "+osArch+"\n",
+				"* **Java Version:** "+javaVersion+"\n",
+				"* **JVM Args:** "+jvmArgs.stream().collect(Collectors.joining(";"))+"\n",
+				"* **Test Type:** Controller Unit Test\n",
+				"* **Test Class:** "+failure.getDescription().getClassName() + "\n",
+				"* **Test Method:** "+failure.getDescription().getMethodName() + "\n",
+				"``` java",
+				failure.getTrace(),
+				"```"
+		).stream().collect(Collectors.joining("\n"));
 		json.put("defectName", defectName);
 		json.put("defectDescribe", defectDescribe);
+		json.put("defectLevel","middle");
+		json.put("handleByList", Arrays.asList(this.getHandler(pushDefect)));
 		RequestBody formBody = RequestBody.create(FORM_CONTENT_TYPE, String.valueOf(json));
 		Request request = new Request.Builder()
 				.url(url)
@@ -114,14 +142,8 @@ public class BugCloudRunListener extends RunListener {
 			}
 		} catch (Exception e) {
 			sb.append("\n 提交问题接口失败\n local error:" + e.getMessage());
-		} finally {
-			sb.append("\n Test Class:" + this.testClass.getName() + " 测试完成=========================================");
-			logger.info(sb.toString());
 		}
-
-		super.testRunFinished(result);
 	}
-
 
 	/**
 	 * 获取处理人

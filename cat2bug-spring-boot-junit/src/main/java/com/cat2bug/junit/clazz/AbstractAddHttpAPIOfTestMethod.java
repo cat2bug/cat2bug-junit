@@ -80,7 +80,7 @@ public abstract class AbstractAddHttpAPIOfTestMethod extends AbstractAddMethodOf
 				TestParameter requestBodyTestParameter = null;
 				String paramName = attr.variableName(i + pos); // 参数名称
 				String paramType = srcMethod.getParameterTypes()[i].getName(); // 参数类型
-				Object paramValue = ParameterService.getInstance().createParameterValue(ctClass.getName(), methodName,
+				Object paramValue = ParameterService.getInstance().createParameterValue(srcClass.getName() ,ctClass.getName(), this.srcMethod.getName(),
 						paramName, paramType);
 				String paramUse = ""; // 参数用途
 				if (ans[i] != null && ans[i].length > 0) {

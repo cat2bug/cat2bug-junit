@@ -1,16 +1,22 @@
 package com.cat2bug.junit;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
+import com.cat2bug.junit.annotation.AutoTestScan;
+import com.cat2bug.junit.clazz.ParameterService;
+import com.cat2bug.junit.clazz.SpringControllerTestClassFactory;
+import com.google.common.base.Preconditions;
+import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.model.RunnerBuilder;
+import org.junit.runners.model.TestClass;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -18,16 +24,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.SystemPropertyUtils;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cat2bug.junit.annotation.AutoTestScan;
-import com.cat2bug.junit.clazz.ParameterService;
-import com.cat2bug.junit.clazz.SpringControllerTestClassFactory;
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 用于自动创建基于测试Spring项目的测试用例Runner
  * @author yuzhantao
  *
  */
+@RunWith(Suite.class)
 public class Cat2BugAutoSpringSuite extends Suite {
 //	private static final Log log = LogFactory.getLog(BugCloudAutoRunner.class);
 	private static Class<?>[] testClasses = null;

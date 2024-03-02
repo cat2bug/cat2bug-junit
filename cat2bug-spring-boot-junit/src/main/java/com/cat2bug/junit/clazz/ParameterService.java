@@ -6,12 +6,20 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
+import com.cat2bug.junit.Cat2BugAutoSpringSuite;
 import com.cat2bug.junit.annotation.RandomParameter;
+import org.reflections.Reflections;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
 /**
  * 参数服务类
@@ -19,10 +27,11 @@ import com.cat2bug.junit.annotation.RandomParameter;
  * @author yuzhantao
  *
  */
+@Service
 public class ParameterService {
-	private Map<String, Object> createParameterClassMap = new ConcurrentHashMap<>();
+	private Map<String, Class<?>> createParameterClassMap = new ConcurrentHashMap<>();
 
-	private static ParameterService instance;
+	public static ParameterService instance;
 
 	public static ParameterService getInstance() {
 		if (instance == null) {
@@ -39,36 +48,36 @@ public class ParameterService {
 	 * @throws Exception		
 	 */
 	public void addParameterCreateClass(Class<?> createClass, String[] useClassNames) throws Exception {
-		Object createObj = createClass.newInstance();
 		for (String cls : useClassNames) {
-			this.createParameterClassMap.put(cls, createObj);
+			this.createParameterClassMap.put(cls, createClass);
 		}
 	}
 
 	/**
 	 * 获取参数值
-	 * 
-	 * @param useClassName  使用创建类的测试类
-	 * @param methodName    测试方法
+	 *
+	 * @param srcClassName  原始测试类名
+	 * @param proxyClassName 代理测试类名
+	 * @param srcMethodName    原始测试方法
 	 * @param parameterName 参数名
 	 * @param paramType 	参数类型
 	 * @return				返回创建的参数值
 	 * @throws Exception
 	 */
-	public Object createParameterValue(String useClassName, String methodName, String parameterName, String paramType)
+	public Object createParameterValue(String srcClassName, String proxyClassName, String srcMethodName, String parameterName, String paramType)
 			throws Exception {
-		if (this.createParameterClassMap.containsKey(useClassName)) {
-			Object createInstance = this.createParameterClassMap.get(useClassName); // 获取创建类的实例
+		if (this.createParameterClassMap.containsKey(proxyClassName)) {
+			Class<?> testCaseClass = this.createParameterClassMap.get(proxyClassName); // 获取创建类的实例
 			// 遍历用户写的测试类中的方法，查找是否有定义随机参数的函数，如果有，就用用户函数计算参数值
-			Method[] methods = createInstance.getClass().getMethods();
+			Method[] methods = testCaseClass.getMethods();
 			for (Method m : methods) {
 				RandomParameter rp = m.getAnnotation(RandomParameter.class);
 				if (rp == null)
 					continue;
-				boolean isMatch = Pattern.matches(rp.className(), useClassName);
+				boolean isMatch = Pattern.matches(rp.className(), srcClassName);
 				if (!isMatch && "".equals(rp.className()) == false)
 					continue;
-				isMatch = Pattern.matches(rp.methodName(), methodName);
+				isMatch = Pattern.matches(rp.methodName(), srcMethodName);
 				if (!isMatch && "".equals(rp.methodName()) == false)
 					continue;
 				isMatch = Pattern.matches(rp.parameterName(), parameterName);
@@ -77,12 +86,11 @@ public class ParameterService {
 				if (paramType.equals(m.getReturnType().getName()) == false) {
 					continue;
 				}
-				return (String) m.invoke(createInstance, new Object[] {});
+				Object createInstance = testCaseClass.newInstance();
+				return m.invoke(createInstance, new Object[] {});
 			}
-			return createParameterValueByAI(parameterName, paramType); // 如果没有自定义函数，就用内部算法计算参数值
-		} else {
-			return createParameterValueByAI(parameterName, paramType); // 如果没有自定义函数，就用内部算法计算参数值
 		}
+		return createParameterValueByAI(parameterName, paramType); // 如果没有自定义函数，就用内部算法计算参数值
 	}
 
 	/**
