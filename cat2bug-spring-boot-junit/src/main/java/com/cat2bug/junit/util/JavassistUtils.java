@@ -18,10 +18,10 @@ public class JavassistUtils {
 	/**
 	 * 对象转MemberObj
 	 * 
-	 * @param obj
-	 * @param cp
-	 * @return
-	 * @throws Exception 
+	 * @param obj	原始数据
+	 * @param cp	ConstPool对象
+	 * @return	值
+	 * @throws Exception  异常
 	 */
 	public static MemberValue obj2MemberObj(Object obj, ConstPool cp) throws Exception {
 		if (obj instanceof String) {

@@ -103,7 +103,8 @@ public class BugCloudRunListener extends RunListener {
 	private void pushDefect(PushDefect pushDefect, String url, String projectKey, Failure failure,StringBuffer sb) {
 		OkHttpClient client = new OkHttpClient();
 		JSONObject json = new JSONObject();
-		String defectName = ("["+failure.getDescription().getDisplayName()+"]"+failure.getMessage()).substring(0,Math.min(failure.getMessage().length(),128));
+		String defectName = ("["+failure.getDescription().getDisplayName()+"]"+failure.getMessage());
+		defectName = defectName.substring(0,Math.min(defectName.length(),128));
 		String osName = System.getProperty("os.name");// 操作系统名称
 		String osArch = System.getProperty("os.arch");// 获取操作系统架构（位数）
 		String osVersion = System.getProperty("os.version");// 获取操作系统版本
@@ -147,8 +148,8 @@ public class BugCloudRunListener extends RunListener {
 
 	/**
 	 * 获取处理人
-	 * @param pushDefect
-	 * @return
+	 * @param pushDefect 推送注解参数
+	 * @return	推送人
 	 */
 	private String getHandler(PushDefect pushDefect) {
 		if(Strings.isNotBlank(pushDefect.handler())){
@@ -163,8 +164,8 @@ public class BugCloudRunListener extends RunListener {
 
 	/**
 	 * 获取项目密钥
-	 * @param pushDefect
-	 * @return
+	 * @param pushDefect	推送注解参数
+	 * @return	密钥
 	 */
 	private String getProjectKey(PushDefect pushDefect) {
 		if(Strings.isNotBlank(pushDefect.projectKey())){
@@ -180,8 +181,8 @@ public class BugCloudRunListener extends RunListener {
 
 	/**
 	 * 获取缺陷推送地址
-	 * @param pushDefect
-	 * @return
+	 * @param pushDefect	推送注解对数
+	 * @return	缺陷服务器地址
 	 */
 	private String getPushDefectUrl(PushDefect pushDefect) {
 		if(Strings.isNotBlank(pushDefect.host())){

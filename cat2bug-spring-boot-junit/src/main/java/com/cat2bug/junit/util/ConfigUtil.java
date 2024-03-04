@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * @Author: yuzhantao
- * @CreateTime: 2024-02-26 02:31
- * @Version: 1.0.0
+ * 配置类
  */
 public class ConfigUtil {
 
@@ -21,10 +19,10 @@ public class ConfigUtil {
 
     /**
      * 获取配置
-     * @param key
-     * @param t
-     * @return
-     * @param <T>
+     * @param key   配置名
+     * @param cls   配置类
+     * @return      配置数据
+     * @param <T>   配置数据类型
      */
     public static <T> T getConfig(String key,Class<T> cls) {
         Map<String, Object> map = loadConfig();

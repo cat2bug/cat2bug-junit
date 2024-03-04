@@ -15,22 +15,22 @@ import java.util.List;
 public @interface PushDefect {
 	/**
 	 * 提交接口的系统地址
-	 * @return
+	 * @return 接口服务器地址
 	 */
 	String host() default "";
 	/**
 	 * 项目的密钥
-	 * @return
+	 * @return 密钥
 	 */
 	String projectKey() default "";
 	/**
 	 * 处理人账号
-	 * @return
+	 * @return 处理人账号
 	 */
 	String handler() default "";
 	/**
 	 * 是否推送测试报告
-	 * @return
+	 * @return 是否推送测试报告
 	 */
 	boolean isPush() default true;
 }

@@ -3,9 +3,7 @@ package com.cat2bug.junit.annotation;
 import java.lang.annotation.*;
 
 /**
- * @Author: yuzhantao
- * @CreateTime: 2024-02-27 00:59
- * @Version: 1.0.0
+ * 用户配置接口测试信息
  */
 @Documented
 @Target(ElementType.TYPE)
@@ -13,7 +11,7 @@ import java.lang.annotation.*;
 public @interface ControllerTest {
     /**
      * 是否启动自动化接口测试
-     * @return
+     * @return  true为自动测试
      */
     boolean enable() default true;
 

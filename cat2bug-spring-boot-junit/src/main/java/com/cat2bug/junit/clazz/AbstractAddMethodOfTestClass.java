@@ -21,18 +21,35 @@ import javassist.bytecode.annotation.MemberValue;
  *
  */
 public abstract class AbstractAddMethodOfTestClass extends AbstractTestClassDecorator {
-	private Class<?>[] paramesClasses;
-	private String name;
-	private Map<Class<? extends Annotation>, Map<String, Object>> annoations;
+	protected Class<?>[] paramesClasses;
+	protected String name;
+	protected Map<Class<? extends Annotation>, Map<String, Object>> annotations;
+
+	protected CtClass returnClasses;
+
 	public AbstractAddMethodOfTestClass(ITestClassFactory factory,String name) {
 		this(factory,name,null,null);
 	}
-	
-	public AbstractAddMethodOfTestClass(ITestClassFactory factory, String name,Class<?>[] paramesClasses,Map<Class<? extends Annotation>, Map<String, Object>> annoations) {
+
+	public AbstractAddMethodOfTestClass(
+			ITestClassFactory factory,
+			String name,
+			Class<?>[] paramesClasses,
+			Map<Class<? extends Annotation>, Map<String, Object>> annotations) {
+		this(factory,name,paramesClasses,annotations,CtClass.voidType);
+	}
+
+	public AbstractAddMethodOfTestClass(
+			ITestClassFactory factory,
+			String name,
+			Class<?>[] paramesClasses,Map<Class<? extends Annotation>,
+			Map<String, Object>> annotations,
+			CtClass returnClasses) {
 		super(factory);
 		this.name=name;
 		this.paramesClasses = paramesClasses;
-		this.annoations=annoations;
+		this.annotations=annotations;
+		this.returnClasses = returnClasses;
 	}
 
 	@Override
@@ -49,11 +66,11 @@ public abstract class AbstractAddMethodOfTestClass extends AbstractTestClassDeco
 				parameCtClass[i]=cp.makeClass(this.paramesClasses[i].getName());
 			}
 		}
-		CtMethod method = new CtMethod(CtClass.voidType, this.name, parameCtClass, ctClass); //  创建方法对象
+		CtMethod method = new CtMethod(this.returnClasses, this.name, parameCtClass, ctClass); //  创建方法对象
 		// 添加方法注解
-		if (this.annoations != null) {
+		if (this.annotations != null) {
 			AnnotationsAttribute attr = new AnnotationsAttribute(constpool, AnnotationsAttribute.visibleTag);
-			for (Map.Entry<Class<? extends Annotation>, Map<String, Object>> a : this.annoations.entrySet()) {
+			for (Map.Entry<Class<? extends Annotation>, Map<String, Object>> a : this.annotations.entrySet()) {
 				javassist.bytecode.annotation.Annotation annotation = new javassist.bytecode.annotation.Annotation(
 						a.getKey().getName(), constpool);
 				// 添加注解参数

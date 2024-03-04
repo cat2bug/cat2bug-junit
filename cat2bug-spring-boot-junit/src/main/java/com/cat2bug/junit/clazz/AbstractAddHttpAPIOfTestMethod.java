@@ -2,10 +2,10 @@ package com.cat2bug.junit.clazz;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.cat2bug.junit.util.ParamMethodUtil;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +28,7 @@ import javassist.bytecode.MethodInfo;
  *
  */
 public abstract class AbstractAddHttpAPIOfTestMethod extends AbstractAddMethodOfTestClass {
-	private Method srcMethod;
+	protected Method srcMethod;
 
 	public AbstractAddHttpAPIOfTestMethod(ITestClassFactory factory, String name, Method srcMethod, Class<?>[] paramesClasses,
 			Map<Class<? extends Annotation>, Map<String, Object>> annoations) {
@@ -76,53 +76,48 @@ public abstract class AbstractAddHttpAPIOfTestMethod extends AbstractAddMethodOf
 			Object[][] ans = srcMethod.getParameterAnnotations(); // 获取参数注解
 			int pos = Modifier.isStatic(srcMethod.getModifiers()) ? 0 : 1; // 非静态的成员函数的第一个参数是this
 			for (int i = 0; i < paramLen; i++) {
-				TestParameter testParameter = null;
-				TestParameter requestBodyTestParameter = null;
 				String paramName = attr.variableName(i + pos); // 参数名称
 				String paramType = srcMethod.getParameterTypes()[i].getName(); // 参数类型
-				Object paramValue = ParameterService.getInstance().createParameterValue(srcClass.getName() ,ctClass.getName(), this.srcMethod.getName(),
-						paramName, paramType);
-				String paramUse = ""; // 参数用途
+
 				if (ans[i] != null && ans[i].length > 0) {
+					String paramMethodName = ParamMethodUtil.createMethodName(this.srcMethod.getName(),paramName,paramType);
 					for (Object pa : ans[i]) {
 						if (pa instanceof PathVariable) { // 如果是路径参数
-							url = this.pathParamHandler(url, paramName, (String) paramValue.toString());
-							paramUse = "PathVariable";
+							url = this.pathParamHandler(url, paramName, String.format("this.%s()",paramMethodName));
 							break;
 						} else if (pa instanceof RequestParam) { // 如果是请求参数
-							paramUse = "RequestParam";
-							testParameter = new TestParameter();
+							body.append(String.format("\n params.put(%s,this.%s());",paramName,paramMethodName));
 						} else if (pa instanceof RequestBody) { // 如果是Body请求参数
-							paramUse = "RequestBody";
-							requestBodyTestParameter = new TestParameter();
+							body.append(String.format("\n requestBodyParam = this.%s();",paramMethodName));
 						}
 					}
 				} else {
-					paramUse = "RequestParam";
-					testParameter = new TestParameter();
-				}
-				body.append("\n log.info(\"参数" + (i + 1) + ":{name:" + paramName + ",type:" + paramType + ",value:"
-						+ paramValue + ",use:" + paramUse + "}\");");
-				if (testParameter != null) {
-					testParameter.setName(paramName);
-					testParameter.setValue(paramValue);
-					testParameterList.add(testParameter);
-				}else if(requestBodyTestParameter!=null) {
-					requestBodyTestParameter.setName(paramName);
-					requestBodyTestParameter.setValue(paramValue);
-					testMethod.setRequestBodyParameter(requestBodyTestParameter);
+					body.append(String.format("\n params.put(%s,this.%s());",paramName,
+							ParamMethodUtil.createMethodName(this.srcMethod.getName(),paramName,paramType)));
 				}
 			}
-			body.append("\n log.info(\"URL:" + url + "\");");
-			body.append("\n " + HttpUtils.class.getName() + "."+this.getTestHttpMethodName()+"(mock,\"" + url + "\",params,requestBodyParam);");
+			String newUrl = Arrays.stream(url.split("\n")).map(s->{
+				if(s.matches("^(this\\.)([A-Za-z0-9]*)(\\(\\))$")) {
+					return String.format("String.valueOf(%s)",s);
+				} else {
+					return "\""+s+"\"";
+				}
+			}).collect(Collectors.joining(" + "));
+			body.append("\n " + HttpUtils.class.getName() + "."+this.getTestHttpMethodName()+"(mock," + newUrl + ",params,requestBodyParam);");
 		}
 		body.append("\n}");
-		System.out.println(body.toString());
 		return body.toString();
 	}
 
+	/**
+	 * 替换路径中的参数
+	 * @param url	源接口路径
+	 * @param name	需要替换的字段名
+	 * @param value	需要替换的字段值
+	 * @return	接口路径
+	 */
 	private String pathParamHandler(String url, String name, String value) {
-		return url.replace(" ", "").replace("{" + name + "}", value);
+		return url.replace(" ", "").replace("{" + name + "}","\n"+value+"\n");
 	}
 	
 	public abstract String getTestHttpMethodName();

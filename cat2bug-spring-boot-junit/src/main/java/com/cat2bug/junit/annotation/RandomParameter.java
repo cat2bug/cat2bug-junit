@@ -8,8 +8,6 @@ import java.lang.annotation.Target;
 
 /**
  * 用于标记随机参数的注解
- * @author yuzhantao
- *
  */
 @Documented
 @Target(ElementType.METHOD)
@@ -17,17 +15,17 @@ import java.lang.annotation.Target;
 public @interface RandomParameter {
 	/**
 	 * 类名称
-	 * @return
+	 * @return 类名称
 	 */
 	String className() default "";
 	/**
 	 * 方法名
-	 * @return
+	 * @return 方法名
 	 */
 	String methodName() default "";
 	/**
 	 * 参数名
-	 * @return
+	 * @return 参数名
 	 */
 	String parameterName() default "";
 }

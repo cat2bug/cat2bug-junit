@@ -49,7 +49,7 @@ public class Cat2BugAutoSpringSuite extends Suite {
 	 * 
 	 * @param testCaseClass 单元测试类
 	 * @return 返回代理类数组
-	 * @throws Exception
+	 * @throws Exception 异常
 	 */
 	private static Class<?>[] createTestControllerProxyClasses(Class<?> testCaseClass) throws Exception {
 		if (Cat2BugAutoSpringSuite.testClasses == null) {
@@ -78,10 +78,10 @@ public class Cat2BugAutoSpringSuite extends Suite {
 	/**
 	 * 根据需要测试的Controller类创建代理测试类
 	 * 
-	 * @param testCaseClass
+	 * @param testCaseClass	测试用例类
 	 * @param destTestClass 需要测试的Controller类
 	 * @return 测试类
-	 * @throws Exception
+	 * @throws Exception 异常
 	 */
 	private static Class<?> createProxyClass(Class<?> testCaseClass, Class<?> destTestClass) throws Exception {
 		Class<?> clazz = controllerScriptFactory.createTestClass(testCaseClass, destTestClass);
@@ -91,8 +91,8 @@ public class Cat2BugAutoSpringSuite extends Suite {
 	/**
 	 * 扫描指定包下的所有Controller类
 	 * 
-	 * @param scanPackage
-	 * @return
+	 * @param scanPackage	扫描的包路径
+	 * @return	扫描到的类
 	 */
 	private static Set<Class<?>> scanControllerClass(String scanPackage) {
 		try {

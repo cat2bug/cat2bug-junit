@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
  * @Version: 1.0.0
  */
 @RunWith(Cat2BugRunner.class)
-//@PushDefect(host = "http://127.0.0.1:2020", projectKey = "20240225012438h19zzdb6sd1ahazj", handler = "张三")
+@PushDefect
 public class Cat2BugRunnerTest {
     @Test
     public void testRuleTrue() {

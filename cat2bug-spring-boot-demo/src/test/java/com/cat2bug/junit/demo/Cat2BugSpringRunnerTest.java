@@ -21,8 +21,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.annotation.Resource;
-import javax.annotation.Resources;
 
 /**
  * @Author: yuzhantao
@@ -30,7 +28,7 @@ import javax.annotation.Resources;
  * @Version: 1.0.0
  */
 @RunWith(Cat2BugSpringRunner.class)
-//@PushDefect(host = "http://127.0.0.1:2020", projectKey = "20240225012438h19zzdb6sd1ahazj", handler = "张三")
+@PushDefect(host = "http://127.0.0.1:2020", projectKey = "20240225012438h19zzdb6sd1ahazj", handler = "admin")
 @WebAppConfiguration
 @SpringBootTest
 public class Cat2BugSpringRunnerTest {
@@ -38,35 +36,16 @@ public class Cat2BugSpringRunnerTest {
     @Autowired
     private WebApplicationContext webContext;
 
-//    @Autowired
-//    UserRepository userRepository;
-
-//    @Configuration
-//    static class TestConfiguration {
-//        @Autowired
-//        UserRepository userRepository;
-//        @Bean
-//        public User createUser() {
-//            User user = new User(1L,"admin","admin");
-//            userRepository.save(user);
-//            return user;
-//        }
-//    }
+    @Autowired
+    UserRepository userRepository;
 
     @Before
     public void init() {
         mock = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(webContext).build();
     }
 
-//    public User createUser(@Autowired UserRepository userRepository) {
-//            User user = new User(1L,"admin","admin");
-//            return userRepository.save(user);
-//        }
-
     @Test
     public void testGetAllUsers() throws Exception {
-//        UserRepository mockUserRepository = Mockito.mock(UserRepository.class);
-//        User user = createUser(mockUserRepository);
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get("/users")
                 .contentType(MediaType.APPLICATION_JSON);
         mock.perform(builder).andExpect(MockMvcResultMatchers.status().isOk())

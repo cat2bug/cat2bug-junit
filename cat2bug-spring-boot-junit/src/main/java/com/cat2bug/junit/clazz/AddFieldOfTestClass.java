@@ -31,11 +31,11 @@ public class AddFieldOfTestClass extends AbstractTestClassDecorator {
 	}
 
 	public AddFieldOfTestClass(ITestClassFactory factory, Class<?> clazz, String name,
-			Map<Class<? extends Annotation>, Map<String, Object>> annoations) {
+			Map<Class<? extends Annotation>, Map<String, Object>> annotations) {
 		super(factory);
 		this.clazz = clazz;
 		this.name = name;
-		this.annoations = annoations;
+		this.annoations = annotations;
 	}
 
 	@Override

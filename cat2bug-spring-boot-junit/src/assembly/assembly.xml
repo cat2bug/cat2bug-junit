@@ -14,7 +14,7 @@
             <include>*.sha1</include>
             <include>*.asc</include>
         </includes>
-        <outputDirectory>/cat2bug/cat2bug-spring-boot-junit/0.0.1</outputDirectory>
+        <outputDirectory>/cat2bug/cat2bug-spring-boot-junit/${project.version}</outputDirectory>
     </fileSet>
 </fileSets>
 </assembly>

@@ -43,13 +43,13 @@ public class ParameterService {
 	/**
 	 * 添加参数创建类
 	 * 
-	 * @param createClass 		可以创建参数值的类
+	 * @param caseClass 		可以创建参数值的类
 	 * @param useClassNames    	使用创建类的其它类数组
-	 * @throws Exception		
+	 * @throws Exception		异常
 	 */
-	public void addParameterCreateClass(Class<?> createClass, String[] useClassNames) throws Exception {
+	public void addParameterCreateClass(Class<?> caseClass, String[] useClassNames) throws Exception {
 		for (String cls : useClassNames) {
-			this.createParameterClassMap.put(cls, createClass);
+			this.createParameterClassMap.put(cls, caseClass);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class ParameterService {
 	 * @param parameterName 参数名
 	 * @param paramType 	参数类型
 	 * @return				返回创建的参数值
-	 * @throws Exception
+	 * @throws Exception 异常
 	 */
 	public Object createParameterValue(String srcClassName, String proxyClassName, String srcMethodName, String parameterName, String paramType)
 			throws Exception {
@@ -90,17 +90,61 @@ public class ParameterService {
 				return m.invoke(createInstance, new Object[] {});
 			}
 		}
-		return createParameterValueByAI(parameterName, paramType); // 如果没有自定义函数，就用内部算法计算参数值
+		return createParameterRandomValue(paramType); // 如果没有自定义函数，就用内部算法计算参数值
+	}
+
+	public Method getTestCaseMethod(String srcClassName, String proxyClassName, String srcMethodName, String parameterName, String paramType)
+			throws Exception {
+		if (this.createParameterClassMap.containsKey(proxyClassName)) {
+			Class<?> testCaseClass = this.createParameterClassMap.get(proxyClassName); // 获取创建类的实例
+			// 遍历用户写的测试类中的方法，查找是否有定义随机参数的函数，如果有，就用用户函数计算参数值
+			Method[] methods = testCaseClass.getMethods();
+			for (Method m : methods) {
+				RandomParameter rp = m.getAnnotation(RandomParameter.class);
+				if (rp == null)
+					continue;
+				boolean isMatch = Pattern.matches(rp.className(), srcClassName);
+				if (!isMatch && "".equals(rp.className()) == false)
+					continue;
+				isMatch = Pattern.matches(rp.methodName(), srcMethodName);
+				if (!isMatch && "".equals(rp.methodName()) == false)
+					continue;
+				isMatch = Pattern.matches(rp.parameterName(), parameterName);
+				if (!isMatch && "".equals(rp.parameterName()) == false)
+					continue;
+				String t = m.getReturnType().getName();
+				if (this.typeEquals(paramType,m.getReturnType().getName()) == false) {
+					continue;
+				}
+				return m;
+			}
+		}
+		return null;
+	}
+
+	private boolean typeEquals(String t1,String t2) {
+		try {
+			return (t1.equals(t2) ||
+					(Class.forName(t1).getSimpleName().toUpperCase().equals(t2.toUpperCase()) &&
+							(t2.equals("long")||
+							t2.equals("int")||
+							t2.equals("char")||
+							t2.equals("bool")||
+							t2.equals("double")||
+							t2.equals("float")||
+							t2.equals("short"))));
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
 	}
 
 	/**
 	 * 根据智能化算法创建参数值
 	 * 
-	 * @param parameterName
-	 * @param paramType
-	 * @return
+	 * @param paramType 参数类型
+	 * @return 随机值
 	 */
-	private static Object createParameterValueByAI(String parameterName, String paramType) {
+	public Object createParameterRandomValue(String paramType) {
 		switch (paramType) {
 		case "java.lang.String":
 			return createStringValue();
@@ -132,7 +176,7 @@ public class ParameterService {
 		}
 	}
 
-	private static Object createObjectValue(String paramType) {
+	private Object createObjectValue(String paramType) {
 		try {
 			Object obj = Class.forName(paramType).newInstance();
 			setClassFieldValue(obj);
@@ -173,14 +217,7 @@ public class ParameterService {
 
 	}
 
-	public static void main(String[] args) {
-		ParameterService d = new ParameterService();
-		Object a = d.new a();
-		setClassFieldValue(a);
-		System.out.println(JSON.toJSONString(a));
-	}
-
-	private static void setClassFieldValue(Object obj) {
+	private void setClassFieldValue(Object obj) {
 		Field[] fields = obj.getClass().getDeclaredFields();
 		for (Field f : fields) {
 			// 如果是静态或常量，就跳出
@@ -188,7 +225,7 @@ public class ParameterService {
 				continue;
 			Type t = f.getGenericType();
 			String typeName = t.getTypeName();
-			Object value = createParameterValueByAI(f.getName(), typeName);
+			Object value = createParameterRandomValue(typeName);
 			try {
 				f.setAccessible(true);
 				f.set(obj, value);
@@ -227,8 +264,8 @@ public class ParameterService {
 		return (char) (Math.random() * Character.MAX_VALUE);
 	}
 
-	private static long createLongValue() {
-		return (long) (Math.random() * Long.MAX_VALUE);
+	private static Long createLongValue() {
+		return Long.valueOf(Math.round(Math.random() * Long.MAX_VALUE));
 	}
 
 	private static Date createDateValue() {

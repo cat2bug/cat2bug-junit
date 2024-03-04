@@ -209,8 +209,8 @@ public class HttpUtils {
 	/**
 	 * 获取网址
 	 * 
-	 * @param cs
-	 * @return
+	 * @param cs 网址集合
+	 * @return	网址
 	 */
 	public static String getUrl(List<String> cs) {
 		StringBuffer sb = new StringBuffer();

@@ -8,20 +8,24 @@ import java.util.Map;
 import java.util.Set;
 
 import com.cat2bug.junit.Cat2BugSpringRunner;
+import com.cat2bug.junit.util.HttpUtils;
+import com.cat2bug.junit.util.ParamMethodUtil;
+import com.cat2bug.junit.vo.TestParameter;
+import javassist.ClassPool;
+import javassist.CtMethod;
+import javassist.Modifier;
+import javassist.bytecode.CodeAttribute;
+import javassist.bytecode.LocalVariableAttribute;
+import javassist.bytecode.MethodInfo;
 import org.apache.commons.logging.Log;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
 
 
@@ -29,11 +33,11 @@ import javassist.CtClass;
 
 public class SpringControllerTestClassFactory {
 	public Class<?> createTestClass(Class<?> testClass, Class<?> clazz) throws Exception {
-		String className = clazz.getSimpleName() + "Test"; // 测试类的类名
+		String proxyClassName = clazz.getSimpleName() + "Test"; // 测试类的类名
 		String packageName = clazz.getPackage().getName(); // 测试类的包名
-		String longClassName = packageName + "." + className;// 测试类+包名
+		String longProxyClassName = packageName + "." + proxyClassName;// 测试类+包名
 
-		ITestClassFactory factory = new TestClassFactory(className, packageName);
+		ITestClassFactory factory = new TestClassFactory(proxyClassName, packageName);
 		// 添加@RunWith注解
 		Map<String, Object> runWithParams = new HashMap<>();
 		runWithParams.put("value", Cat2BugSpringRunner.class);
@@ -69,11 +73,16 @@ public class SpringControllerTestClassFactory {
 				webContextAnnotationParams);
 		// 添加MockMvc对象
 		factory = new AddFieldOfTestClass(factory, MockMvc.class, "mock");
+		// 添加ApplicationContext对象
+		Map<Class<? extends Annotation>, Map<String, Object>>  applicationContextAnnotationParams = new HashMap<>();
+		applicationContextAnnotationParams.put(Autowired.class, null);
+		factory = new AddFieldOfTestClass(factory, ApplicationContext.class, "context", applicationContextAnnotationParams);
+
 		// 构造函数
 		factory = new AbstractAddConstructorOfTestClass(factory) {
 			@Override
 			public String body() {
-				return "{ this.log=org.apache.commons.logging.LogFactory.getLog(\"" + longClassName + "\"); }";
+				return "{ this.log=org.apache.commons.logging.LogFactory.getLog(\"" + longProxyClassName + "\"); }";
 			}
 		};
 		// @before函数
@@ -87,8 +96,31 @@ public class SpringControllerTestClassFactory {
 			}
 		};
 
-		// 添加测试方法
 		Set<Method> methods = scanControllerMethod(clazz);
+		// 从测试用例中查找拼配的生成参数的方法，添加到测试类中
+		for (Method m : methods) {
+			ClassPool pool = ClassPool.getDefault();
+			CtClass srcClass = pool.getCtClass(m.getDeclaringClass().getName()); // 获取原始类
+			CtMethod srcMethod = srcClass.getDeclaredMethod(m.getName()); // 获取原始类方法
+			MethodInfo methodInfo = srcMethod.getMethodInfo();
+			CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			if (codeAttribute != null) {
+				LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute
+						.getAttribute(LocalVariableAttribute.tag);
+				int paramLen = srcMethod.getParameterTypes().length; // 参数数量
+				Object[][] ans = srcMethod.getParameterAnnotations(); // 获取参数注解
+				int pos = Modifier.isStatic(srcMethod.getModifiers()) ? 0 : 1; // 非静态的成员函数的第一个参数是this
+				for (int i = 0; i < paramLen; i++) {
+					String paramName = attr.variableName(i + pos); // 参数名称
+					String paramType = srcMethod.getParameterTypes()[i].getName(); // 参数类型
+					String methodName = ParamMethodUtil.createMethodName(m.getName(),paramName,paramType);
+					factory= new AddArgeMethodOfTestClass(factory,methodName, clazz, longProxyClassName, m.getName(),paramName, paramType);
+				}
+
+			}
+		}
+
+		// 添加测试方法
 		Map<Class<? extends Annotation>, Map<String, Object>> testMethodAnnotationParams = new HashMap<>();
 		testMethodAnnotationParams.put(Test.class, null);
 		for (Method m : methods) {
@@ -140,11 +172,20 @@ public class SpringControllerTestClassFactory {
 				}
 			}
 		}
+
 		CtClass ctClass = factory.createTestClass(clazz);
+		this.writeFile(ctClass);
 		Class<?> cs = ctClass.toClass();
 		return cs;
 	}
 
+	private void writeFile(CtClass ctClass) {
+		try {
+			ctClass.writeFile("./target/cat2bug-junit-classes");
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * 扫描Controller类中的接口方法
 	 * 

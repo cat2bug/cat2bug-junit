@@ -11,24 +11,24 @@ import java.lang.annotation.*;
 public @interface PerfTest {
     /**
      * 是否启动性能测试
-     * @return
+     * @return 是否启动性能测试
      */
     boolean enable() default true;
     /**
      * 并发线程数量
-     * @return
+     * @return 并发线程数量
      */
     int threads() default 1;
 
     /**
      * 执行次数
-     * @return
+     * @return 执行次数
      */
     int invocations() default 1;
 
     /**
      * 重复地执行测试至少执行多少秒，0表示不参考此参数
-     * @return
+     * @return 重复地执行测试至少执行多少秒，0表示不参考此参数
      */
     long duration() default 0;
 }
