@@ -18,7 +18,7 @@ Cat2Cug-Spring-Boot-JUnit 以Spring Boot 2、JUnit 4 为基础,添加测试报�
 
 *  Gradle
 ```javascript
-testImplementation ("com.cat2bug:cat2bug-spring-boot-junit:0.0.1")
+testImplementation ("com.cat2bug:cat2bug-spring-boot-junit:0.0.2")
 ```
 
 * Maven
@@ -27,7 +27,7 @@ testImplementation ("com.cat2bug:cat2bug-spring-boot-junit:0.0.1")
 <dependency>
     <groupId>com.cat2bug</groupId>
     <artifactId>cat2bug-spring-boot-junit</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <scope>test</scope>
 </dependency>
 ```
